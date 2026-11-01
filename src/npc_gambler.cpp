@@ -13,11 +13,11 @@ defined in the configuration. It's a nice way for players to make a little extra
     - Set bet and jackpot amounts
     - Enable/Disable coin type (gold, silver, copper)
     - Set coin type to gamble
-- A roll of 50 or higher wins double the bet!
-- A roll of less than 50 loses double the bet!
+- A roll of 76 or higher wins double the bet!
+- A roll of less than 76 loses double the bet!
 - A roll of 100 within the first 10 rolls hits the jackpot!
 - The jackpot can only be hit in the first 10 rolls of each session to discourage spam.
-- A little help is given to players losing 5 rolls in a row.
+- House edge: player wins on 76-100 (~25%); pity boost disabled.
 
 ### To-Do
 ------------------------------------------------------------------------------------------------------------------
@@ -284,7 +284,7 @@ public:
 
             // Rules Menu
             case GOSSIP_ACTION_INFO_DEF + 2:
-                messageInstruct << "The rules are simple " << player->GetName() << ".. If you roll higher than 50, you win double the bet amount. Otherwise, you lose twice the bet amount. A roll of 100 wins the jackpot. Good Luck!";
+                messageInstruct << "The rules are simple " << player->GetName() << ".. If you roll 76 or higher, you win double the bet amount. Otherwise, you lose twice the bet amount. A roll of 100 wins the jackpot. Good Luck!";
                 AddGossipItemFor(player, GOSSIP_ICON_CHAT, messageInstruct.str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 14);
                 AddGossipItemFor(player, GOSSIP_ICON_TALK, "Alright Skinny, I'm up for some gambling.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                 player->PlayerTalkClass->SendGossipMenu(1, creature->GetGUID());
@@ -389,14 +389,12 @@ public:
         // Calculate player money and bet values
         Pocket = CalcMoney(player->GetMoney(), bet);
 
-        // Losing Streak? Aww.. how about some help.
-        // After 5 losses in a row, add +25 to their next roll.
-        if (Losses >= 5 && Roll < 50)
+        // Pity whisper only (no roll boost) so house keeps ~75% edge.
+        if (Losses >= 5 && Roll < 76)
         {
             std::ostringstream messageHelp;
             messageHelp << "Lady luck isn't on your side tonight " << player->GetName() << ".";
             creature->Whisper(messageHelp.str().c_str(), LANG_UNIVERSAL, player);
-            Roll = Roll + 25;
             Losses = 0;
         }
 
@@ -433,7 +431,7 @@ public:
         }
 
         // Why does it happen? Because it happens.. Roll the bones.. Roll the bones!
-        if (Roll >= 50)
+        if (Roll >= 76)
         {
             std::ostringstream messageAction;
             std::ostringstream messageNotice;
